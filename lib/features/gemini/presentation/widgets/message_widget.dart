@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 class MessageWidget extends StatelessWidget {
@@ -12,12 +12,29 @@ class MessageWidget extends StatelessWidget {
   final String text;
   final bool isFromUser;
 
+  Future<void> _copyToClipboard(BuildContext context) async {
+    await Clipboard.setData(ClipboardData(text: text));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Text copied to clipboard!'),
+        showCloseIcon: true,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment:
           isFromUser ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
+        if (!isFromUser)  const Padding(
+            padding: EdgeInsets.all(4.0),
+            child: CircleAvatar(
+              child: Icon(Icons.smart_toy),
+            ),
+          ),
         Flexible(
           child: Container(
             constraints: const BoxConstraints(maxWidth: 480),
@@ -32,9 +49,32 @@ class MessageWidget extends StatelessWidget {
               horizontal: 20,
             ),
             margin: const EdgeInsets.only(bottom: 8),
-            child: MarkdownBody(data: text),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MarkdownBody(
+                  data: text,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () => _copyToClipboard(context),
+                      icon: const Icon(Icons.copy),
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
+        if (isFromUser)
+          const Padding(
+            padding: EdgeInsets.all(4.0),
+            child: CircleAvatar(
+              child: Icon(Icons.person),
+            ),
+          ),
       ],
     );
   }

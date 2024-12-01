@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
+import 'package:tanyakan/helper/env.dart';
 import 'package:tanyakan/utils/app_router.dart';
 
 void main() async {
@@ -13,6 +15,24 @@ void main() async {
   // final response = await model.generateContent(content);
 
   // print(response.text);
+  // Initialize the app and get the app version asynchronously.
+  WidgetsFlutterBinding
+      .ensureInitialized(); // Ensure Flutter bindings are initialized
+
+  await Supabase.initialize(
+    url: Env.supabaseBaseUrl,
+    anonKey:
+        Env.supabaseKey,
+    authOptions: const FlutterAuthClientOptions(
+      authFlowType: AuthFlowType.pkce,
+    ),
+    realtimeClientOptions: const RealtimeClientOptions(
+      logLevel: RealtimeLogLevel.info,
+    ),
+    storageOptions: const StorageClientOptions(
+      retryAttempts: 10,
+    ),
+  );
   runApp(MyApp());
 }
 
@@ -25,6 +45,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       routerConfig: _appRouter.config(),
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tanyakan/helper/env.dart';
 
 part 'di.g.dart';
@@ -22,6 +23,11 @@ GenerativeModel provideGenerativeModel(ref) {
       maxOutputTokens: 8192,
       responseMimeType: 'text/plain',
     ),
+    safetySettings: [
+      SafetySetting(HarmCategory.dangerousContent, HarmBlockThreshold.medium),
+      SafetySetting(HarmCategory.hateSpeech, HarmBlockThreshold.high),
+    ],
+    systemInstruction: Content.system('You are a friends. Your name is Neko.'),
   );
 }
 
@@ -32,4 +38,9 @@ Dio provideDio(ref) {
       headers: {'Content-Type': 'application/json'},
     ),
   );
+}
+
+@riverpod
+Supabase provideSupabaseClient(ref) {
+  return Supabase.instance;
 }

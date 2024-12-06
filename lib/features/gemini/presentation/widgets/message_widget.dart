@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:share_plus/share_plus.dart';
 
 class MessageWidget extends StatelessWidget {
   const MessageWidget({
@@ -23,13 +24,18 @@ class MessageWidget extends StatelessWidget {
     );
   }
 
+  void _share() {
+    Share.share(text, subject: 'Tanyakan chatbot');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment:
           isFromUser ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
-        if (!isFromUser)  const Padding(
+        if (!isFromUser)
+          const Padding(
             padding: EdgeInsets.all(4.0),
             child: CircleAvatar(
               child: Icon(Icons.smart_toy),
@@ -58,6 +64,10 @@ class MessageWidget extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    IconButton(
+                      onPressed: () => _share(),
+                      icon: const Icon(Icons.share),
+                    ),
                     IconButton(
                       onPressed: () => _copyToClipboard(context),
                       icon: const Icon(Icons.copy),

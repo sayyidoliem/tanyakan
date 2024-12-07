@@ -41,12 +41,16 @@ class MessageWidget extends StatelessWidget {
               child: Icon(Icons.smart_toy),
             ),
           ),
+        if (isFromUser)
+          const Padding(
+            padding: EdgeInsets.all(24.0),
+          ),
         Flexible(
           child: Container(
-            constraints: const BoxConstraints(maxWidth: 480),
+            constraints: const BoxConstraints(maxWidth: 1600),
             decoration: BoxDecoration(
               color: isFromUser
-                  ? Theme.of(context).colorScheme.primaryContainer
+                  ? Theme.of(context).colorScheme.tertiaryContainer
                   : Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(18),
             ),
@@ -84,6 +88,10 @@ class MessageWidget extends StatelessWidget {
             child: CircleAvatar(
               child: Icon(Icons.person),
             ),
+          ),
+           if (!isFromUser)
+          const Padding(
+            padding: EdgeInsets.all(24.0),
           ),
       ],
     );

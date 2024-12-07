@@ -1,19 +1,21 @@
+import 'package:Tanyakan/common/decoration.dart';
+import 'package:Tanyakan/di.dart';
+import 'package:Tanyakan/features/gemini/presentation/widgets/message_widget.dart';
+import 'package:Tanyakan/utils/app_router.gr.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:tanyakan/common/decoration.dart';
-import 'package:tanyakan/features/gemini/presentation/widgets/message_widget.dart';
-import 'package:tanyakan/helper/env.dart';
 
 @RoutePage()
-class ChatPage extends StatefulWidget {
+class ChatPage extends ConsumerStatefulWidget {
   const ChatPage({super.key});
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatPageState extends ConsumerState<ChatPage> {
   late final GenerativeModel _model;
   late final ChatSession _chat;
   final ScrollController _scrollController = ScrollController();
@@ -24,17 +26,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    _model = GenerativeModel(
-      model: 'gemini-1.5-flash',
-      apiKey: Env.geminiKey,
-      generationConfig: GenerationConfig(
-        temperature: 1,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 8192,
-        responseMimeType: 'text/plain',
-      ),
-    );
+    _model = ref.read(provideGenerativeModelProvider);
     _chat = _model.startChat();
   }
 
@@ -56,6 +48,62 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tanyakan'),
+        automaticallyImplyLeading: false,
+        actions: [
+          PopupMenuButton<String>(
+            itemBuilder: (context) => [
+              PopupMenuItem<String>(
+                value: 'Option 1',
+                child: Row(
+                  children: [
+                    Icon(Icons.chat, color: Theme.of(context).iconTheme.color),
+                    const SizedBox(width: 10),
+                    const Text('New Chat'),
+                  ],
+                ),
+                onTap: () {
+                  context.router.push(const ChatRoute());
+                },
+              ),
+              PopupMenuItem<String>(
+                value: 'Option 2',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings,
+                        color: Theme.of(context).iconTheme.color),
+                    const SizedBox(width: 10),
+                    const Text('Settings'),
+                  ],
+                ),
+                onTap: () => context.router.push(const SettingRoute()),
+              ),
+              PopupMenuItem<String>(
+                value: 'Option 3',
+                child: Row(
+                  children: [
+                    Icon(Icons.account_circle,
+                        color: Theme.of(context).iconTheme.color),
+                    const SizedBox(width: 10),
+                    const Text('Account'),
+                  ],
+                ),
+                onTap: () => context.router.push(AccountRoute()),
+              ),
+              PopupMenuItem<String>(
+                value: 'Option 4',
+                child: Row(
+                  children: [
+                    Icon(Icons.info, color: Theme.of(context).iconTheme.color),
+                    const SizedBox(width: 10),
+                    const Text('About'),
+                  ],
+                ),
+                onTap: () => context.router.push(const AboutRoute()),
+              ),
+            ],
+            icon: const Icon(Icons.more_vert),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -71,7 +119,7 @@ class _ChatPageState extends State<ChatPage> {
                   final text = content.parts
                       .whereType<TextPart>()
                       .map<String>((e) => e.text)
-                      .join('');
+                      .join();
                   return MessageWidget(
                     text: text,
                     isFromUser: content.role == 'user',
@@ -80,41 +128,41 @@ class _ChatPageState extends State<ChatPage> {
                 itemCount: history.length,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 25,
-                horizontal: 15,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      autofocus: true,
-                      focusNode: _textFieldFocus,
-                      decoration:
-                          textFieldDecoration(context, 'Enter a prompt...'),
-                      controller: _textController,
-                      onSubmitted: (String value) {
-                        _sendChatMessage(value);
-                      },
-                    ),
-                  ),
-                  const SizedBox.square(dimension: 15),
-                  if (!_loading)
-                    IconButton(
-                      onPressed: () async {
-                        _sendChatMessage(_textController.text);
-                      },
-                      icon: Icon(
-                        Icons.send,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    )
-                  else
-                    const CircularProgressIndicator(),
-                ],
+          ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 15,
+          horizontal: 15,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                autofocus: true,
+                focusNode: _textFieldFocus,
+                decoration: InputDecorationTextfieldChatPage(
+                    context, 'Enter a prompt...'),
+                controller: _textController,
+                onSubmitted: (String value) {
+                  _sendChatMessage(value);
+                },
               ),
             ),
+            const SizedBox.square(dimension: 15),
+            if (!_loading)
+              IconButton(
+                onPressed: () async {
+                  _sendChatMessage(_textController.text);
+                },
+                icon: Icon(
+                  Icons.send,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              )
+            else
+              const CircularProgressIndicator(),
           ],
         ),
       ),
@@ -128,7 +176,9 @@ class _ChatPageState extends State<ChatPage> {
 
     try {
       final response = await _chat.sendMessage(
-        Content.text(message),
+        Content.multi(
+          [TextPart(message)],
+        ),
       );
       final text = response.text;
 
@@ -170,60 +220,10 @@ class _ChatPageState extends State<ChatPage> {
                 Navigator.of(context).pop();
               },
               child: const Text('OK'),
-            )
+            ),
           ],
         );
       },
     );
   }
 }
-
-
-//@RoutePage()
-// class ChatPage extends ConsumerWidget {
-//   const ChatPage({super.key});
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     TextEditingController _textController = TextEditingController();
-//     final ScrollController _scrollController = ScrollController();
-
-//     void _scrollDown() {
-//       WidgetsBinding.instance.addPostFrameCallback(
-//         (_) => _scrollController.animateTo(
-//           _scrollController.position.maxScrollExtent,
-//           duration: const Duration(
-//             milliseconds: 750,
-//           ),
-//           curve: Curves.easeOutCirc,
-//         ),
-//       );
-//     }
-
-//     final fetchGemini =
-//         ref.watch(fetchChatTextGeminiControllerProvider(_textController.text));
-//         final history = fetchGemini.asData.value.
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Tanyakan'),
-//       ),
-//       body: Padding(
-//         padding: EdgeInsets.all(8.0),
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           crossAxisAlignment: CrossAxisAlignment.center,
-//           children: [
-//             Expanded(
-//                 child: ListView.builder(
-//               controller: _scrollController,
-//               itemBuilder: (context, index) {
-//                 final context = 
-//               },
-//             ))
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-

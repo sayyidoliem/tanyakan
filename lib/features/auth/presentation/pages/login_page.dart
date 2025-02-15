@@ -1,9 +1,10 @@
+import 'package:tanyakan/common/decoration.dart';
+import 'package:tanyakan/helper/storage.dart';
+import 'package:tanyakan/utils/app_router.gr.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
-import 'package:tanyakan/common/decoration.dart';
-import 'package:tanyakan/utils/app_router.gr.dart';
 
 @RoutePage()
 class LoginPage extends StatelessWidget {
@@ -12,7 +13,6 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
       body: SafeArea(
         child: Center(
           child: Column(
@@ -25,10 +25,13 @@ class LoginPage extends StatelessWidget {
               Theme(
                 data: ThemeDataSupabase(),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal:  16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: SupaEmailAuth(
                     redirectTo: kIsWeb ? null : 'io.mydomain.myapp://callback',
                     onSignInComplete: (response) {
+                      SettingsStorage.saveSupabaseToken(
+                          response.session?.accessToken ?? '');
+                          UserStorage.saveUserName(response.user?.id ?? '');
                       context.router.push(const ChatRoute());
                     },
                     onSignUpComplete: (response) {
@@ -42,8 +45,7 @@ class LoginPage extends StatelessWidget {
                         validator: (val) {
                           if (val == null || val.isEmpty) {
                             return 'Please enter something';
-                          }
-                          return null;
+                          } 
                         },
                       ),
                       /*

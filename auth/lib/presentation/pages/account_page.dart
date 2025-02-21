@@ -1,15 +1,13 @@
 import 'dart:io';
 
-import 'package:tanyakan/helper/storage.dart';
-import 'package:tanyakan/utils/app_router.gr.dart';
-import 'package:auto_route/auto_route.dart';
+import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-@RoutePage()
 class AccountPage extends ConsumerStatefulWidget {
   const AccountPage({super.key});
 
@@ -102,9 +100,11 @@ class _AccountPageState extends ConsumerState<AccountPage> {
           children: [
             CircleAvatar(
               radius: 50,
-              backgroundImage: _imageFile != null ? FileImage(_imageFile!) : null,
-              child:
-                  _imageFile == null ? const Icon(Icons.person, size: 50) : null,
+              backgroundImage:
+                  _imageFile != null ? FileImage(_imageFile!) : null,
+              child: _imageFile == null
+                  ? const Icon(Icons.person, size: 50)
+                  : null,
             ),
             const SizedBox(height: 20),
             // ElevatedButton(
@@ -119,7 +119,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
             // ),
             ElevatedButton(
               onPressed: () {
-                context.router.push(const LoginRoute());
+                context.go(LOGIN_PAGE_ROUTE);
               },
               child: const Text('Log Out'),
             )

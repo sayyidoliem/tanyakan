@@ -1,5 +1,11 @@
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:tanyakan/features/auth/domain/repositories/auth_repositories.dart';
+import 'package:auth/domain/repositories/auth_repositories.dart';
+
+part 'auth_repositories_impl.g.dart';
+
+@riverpod
+AuthRepositoriesImpl authRepositories(_) => AuthRepositoriesImpl();
 
 class AuthRepositoriesImpl implements AuthRepositories {
   final _client = Supabase.instance.client;
@@ -25,12 +31,23 @@ class AuthRepositoriesImpl implements AuthRepositories {
     return _client.auth.verifyOTP(
       email: email,
       token: code,
-      type: OtpType.email,
+      type: OtpType.signup,
     );
   }
 
   @override
   Stream<AuthState> get authState => _client.auth.onAuthStateChange;
+
+  @override
+  Future<AuthResponse> logIn({
+    required String email,
+    required String password,
+  }) {
+    return _client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+  }
 
   @override
   Future<void> logOut() => _client.auth.signOut();

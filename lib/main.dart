@@ -1,30 +1,25 @@
-import 'package:flutter/material.dart';
+import 'package:auth/auth.dart';
+import 'package:bot/bot.dart';
+import 'package:core/core.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
-import 'package:tanyakan/helper/env.dart';
-import 'package:tanyakan/utils/app_router.dart';
+import 'package:bot/presentation/pages/detail_bot_page.dart';
+import 'package:tanyakan/features/settings/presentation/pages/setting_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_app_info/flutter_app_info.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() async {
-  // final model = GenerativeModel(
-  //   model: 'gemini-1.5-pro-latest',
-  //   apiKey: Env.geminiKey,
-  // );
-
-  // final session = model.startChat();
-  // const prompt = 'Write a story about a magic backpack.';
-  // final content = [Content.text(prompt)];
-  // final response = await model.generateContent(content);
-
-  // print(response.text);
-  // Initialize the app and get the app version asynchronously.
-  WidgetsFlutterBinding
-      .ensureInitialized(); // Ensure Flutter bindings are initialized
+  WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
     url: Env.supabaseBaseUrl,
-    anonKey:
-        Env.supabaseKey,
+    anonKey: Env.supabaseKey,
     authOptions: const FlutterAuthClientOptions(
       authFlowType: AuthFlowType.pkce,
+      autoRefreshToken: true,
+      localStorage: EmptyLocalStorage(),
+      detectSessionInUri: true,
     ),
     realtimeClientOptions: const RealtimeClientOptions(
       logLevel: RealtimeLogLevel.info,
@@ -33,38 +28,95 @@ void main() async {
       retryAttempts: 10,
     ),
   );
-  runApp(MyApp());
+  runApp(
+    AppInfo(
+      data: await AppInfoData.get(),
+      child: ProviderScope(
+        child: MyApp(),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
 
-  final _appRouter = AppRouter();
+  final _router = GoRouter(
+    initialLocation: '/chat',
+    routes: <RouteBase>[
+      GoRoute(
+        name: SPLASH_PAGE_ROUTE,
+        path: '/splash',
+        builder: (context, state) => const SplashPage(),
+      ),
+      // GoRoute(
+      //   name: LOGIN_PAGE_ROUTE,
+      //   path: '/login',
+      //   builder: (context, state) => const LoginPage(),
+      // ),
+      GoRoute(
+        name: LOGIN_SCREEN_ROUTE,
+        path: '/login-screen',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        name: SIGN_UP_PAGE_ROUTE,
+        path: '/sign-up',
+        builder: (context, state) => const SignUpPage(),
+      ),
+      GoRoute(
+        name: VERIFICATION_PAGE_ROUTE,
+        path: '/verification',
+        builder: (context, state) {
+          final params = state.extra as VerificationPageParams?;
+          if (params == null) {
+            throw 'Missing VerificationPageParams object';
+          }
+          return VerificationPage(params: params);
+        },
+      ),
+      GoRoute(
+        name: CHAT_PAGE_ROUTE,
+        path: '/chat',
+        builder: (context, state) => const ChatPage(),
+      ),
+      GoRoute(
+        name: HOME_PAGE_ROUTE,
+        path: '/home',
+        builder: (context, state) => const HomePage(),
+      ),
+      GoRoute(
+        name: DETAIL_BOT_PAGE_ROUTE,
+        path: '/detail-bot',
+        builder: (context, state) => const DetailBotPage(),
+      ),
+      GoRoute(
+        name: ABOUT_PAGE_ROUTE,
+        path: '/about',
+        builder: (context, state) => const AboutPage(),
+      ),
+      GoRoute(
+        name: ACCOUNT_PAGE_ROUTE,
+        path: '/account',
+        builder: (context, state) => const AccountPage(),
+      ),
+      GoRoute(
+        name: SETTING_PAGE_ROUTE,
+        path: '/setting',
+        builder: (context, state) => const SettingPage(),
+      ),
+    ],
+  );
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerConfig: _appRouter.config(),
-      title: 'Flutter Demo',
+      routerConfig: _router,
+      title: 'Tanyakan Apps(demo)',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      // theme: MaterialTheme().light(),
+      darkTheme: MaterialTheme().dark(),
+      themeMode: ThemeMode.system,
     );
   }
 }

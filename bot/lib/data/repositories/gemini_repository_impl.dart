@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:core/common/failure.dart';
-import '../datasources/gemini_remote_datasource.dart';
-import '../../domain/repositories/gemini_repository.dart';
+import 'package:bot/data/datasources/gemini_remote_datasource.dart';
+import 'package:bot/domain/repositories/gemini_repositories.dart';
 import 'package:dartz/dartz.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'gemini_repository_impl.g.dart';
 
-class GeminiRepositoryImpl implements BotRepositories {
+class GeminiRepositoryImpl implements GeminiRepositories {
   final GeminiRemoteDatasource remoteDatasource;
   final _client = Supabase.instance.client;
 
@@ -45,6 +45,6 @@ class GeminiRepositoryImpl implements BotRepositories {
 }
 
 @riverpod
-BotRepositories geminiRepositories(ref) {
+GeminiRepositories geminiRepositories(ref) {
   return GeminiRepositoryImpl(ref.watch(geminiRemoteDatasourceProvider),ref);
 }

@@ -1,6 +1,6 @@
-import 'package:auth/data/repositories/auth_repositories_impl.dart';
-import 'package:auth/presentation/pages/verification_page.dart';
-import 'package:auth/presentation/widgets/auth_textfield_widget.dart';
+import '../../data/repositories/auth_repositories_impl.dart';
+import 'verification_page.dart';
+import '../widgets/auth_textfield_widget.dart';
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -119,6 +119,11 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
                 setState(() => _showPassword = !_showPassword);
               },
             ),
+            validator: (value) => value == null || value.isEmpty
+                ? 'Please enter your password'
+                : value.length < 6
+                    ? 'Password must be at least 6 characters'
+                    : null,
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 16),

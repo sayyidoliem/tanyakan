@@ -1,5 +1,5 @@
-import 'package:auth/data/repositories/auth_repositories_impl.dart';
-import 'package:auth/presentation/widgets/auth_textfield_widget.dart';
+import '../../data/repositories/auth_repositories_impl.dart';
+import '../widgets/auth_textfield_widget.dart';
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -88,8 +88,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             obscureText: _showPassword,
             prefixIcon: Icon(Icons.lock),
             suffixIcon: IconButton(
-              icon:
-                  Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
+              icon: Icon(
+                _showPassword ? Icons.visibility_off : Icons.visibility,
+              ),
               onPressed: () {
                 setState(() => _showPassword = !_showPassword);
               },
@@ -110,9 +111,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   });
                 },
               ),
-              const Text(
-                'Remember me for 7 days',
-              ),
+              const Text('Remember me for 7 days'),
             ],
           ),
           Padding(
@@ -123,11 +122,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: _isSubmitting
-                    ? null
-                    : () {
-                        _login();
-                      },
+                onPressed: _isSubmitting ? null : () => _login(),
                 child: Text('Log In'),
               ),
             ),

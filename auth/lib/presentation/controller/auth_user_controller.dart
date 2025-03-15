@@ -1,4 +1,4 @@
-import 'package:auth/data/repositories/auth_repositories_impl.dart';
+import '../../data/repositories/auth_repositories_impl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

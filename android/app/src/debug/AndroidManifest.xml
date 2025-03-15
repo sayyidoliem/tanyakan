@@ -4,4 +4,8 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- API level <33 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!-- API level >=33 -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
 </manifest>

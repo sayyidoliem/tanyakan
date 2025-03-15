@@ -1,4 +1,4 @@
-import 'package:auth/auth.dart';
+import '../../auth.dart';
 import 'package:core/utils/buildcontext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

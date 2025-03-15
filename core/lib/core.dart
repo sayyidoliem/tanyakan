@@ -15,7 +15,9 @@ export 'common/state_enum.dart';
 export 'common/theme.dart';
 
 //presentation
+export 'presentation/pages/about_page.dart';
 export 'presentation/pages/home_page.dart';
+export 'presentation/pages/splash_page.dart';
 export 'presentation/widget/grid_personality_widget.dart';
 export 'presentation/widget/personality_widget.dart';
 export 'presentation/widget/page_indicator_widget.dart';
